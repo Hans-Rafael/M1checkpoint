@@ -37,32 +37,27 @@ const {
 //                }
 //            }
 //        }
-//   - Caso que devuelve true  --> objContains(user, "barrio", "Springfield");
+//  - Caso que devuelve true  --> objContains(user, "barrio", "Springfield");
 //   - Caso que devuelve false --> objContains(user, "empleo", "Empleado en planta nuclear");
 // Pista: utilizar typeof para determinar si el valor de una propiedad es un objeto para aplicar
 // allí la recursión
 
-var objContains = function(obj, prop, value){
-  for (var prop in obj) {
-    if (obj.hasOwnProperty(prop) && obj[prop] === value) {
-      return true
+var objContains = function(obj, prop, value, array){
+  var propiedad = prop;
+  var valor = value;
+  var array = Object.keys(obj);
+  for(var i = 0; i < array.length; i++)
+  {
+    if(typeof obj[array[i]] == "object") {
+      obj = obj[array[i]]
+      return objContains(obj, propiedad, valor, array)
     }
-    if(typeof obj[prop] == "object")
-    {
-      obj = obj[prop]
-      return objContains(obj, prop, value)
-    }
-  }
-  for (var prop in obj)  {
-    if(obj.hasOwnProperty(prop) && obj[prop] !== value) {
-      return false}
-    if(typeof obj[prop] == "object")
-    {
-      obj = obj[prop]
-      return objContains(obj, prop, value)
+    if(array[i] === propiedad){
+      if(obj[array[i]] === valor) return true
+      return false
     }
   }
-  return false
+ return false
 }
 
 
@@ -77,22 +72,18 @@ var objContains = function(obj, prop, value){
 // [Para más información del método: https://developer.mozilla.org/es/docs/Web/JavaScript/Referencia/Objetos_globales/Array/isArray]
 
 var countArray = function(array){
-  resultado = clousure()
-  if(!array.length) return 0 
-  for(i = 0; i < array.length; i++){
-      if(Array.isArray(array[i]))countArray(array[i])
-      resultado(array[i])
-      }
-  function clousure(valor){
-var suma = 0;
-return function(valor)
-  {
-    suma = suma + valor;
-    return suma;
+  if(!array.length) return 0;
+  for(var i = 0; i < array.length; i++){
+      if(Array.isArray(array[i])) countArray(array[i])
+      else sumarGuardar(array[i])
+    }
+    return resultado
   }
+var resultado = 0
+function sumarGuardar(valor){
+    resultado = resultado + valor;
+    
   }
-  return resultado()
-}
 // ---------------------
 
 // ----- LinkedList -----
@@ -143,17 +134,20 @@ LinkedList.prototype.size = function(){
 
 LinkedList.prototype.addInPos = function(pos, value){
   var nodo = new Node(value)
-  if(this.head === null && 1 < pos){
-    return false;
-  }
-  contador = 0
-  var current = this.head
-  while(contador < pos){
+  if(this.head === null) return false;
+  contador = 0;
+  var current = this.head;
+  while(contador < pos - 1){
+    if(current.next === null) return false;
     current = current.next;
     contador = contador + 1
   }
-  current.next = value 
+  var aux = current.next
+  current.next = nodo
+  nodo.next = aux
+  return true
 }
+
 
 // EJERCICIO 5
 // Implementar el método reverse dentro del prototype de LinkedList que invierta el orden de la lista
@@ -171,7 +165,7 @@ LinkedList.prototype.reverse = function(){
   }
   array.unshift(current.value)
   var listaInversa = new LinkedList()
-  for(i = 0; i <= array.length; i++){
+  for(i = 0; i < array.length ; i++){
     listaInversa.add(array[i])
   }
   return listaInversa
@@ -205,37 +199,34 @@ LinkedList.prototype.reverse = function(){
 //    - mazoUserB = [6,9,10,3,6,4]
 
 var cardGame = function(mazoUserA, mazoUserB){
-var a = mazoUserA;
-var b = mazoUserB;
-while(a.size > 0 || b.size < 0){
-  if(a[0] < b[0])
-  {
-    mesaA = a[0]
-    mesaB = b[0]
-    a.dequeue()
-    b.dequeue()
-    a.enqueue(mesaA)
-    a.enqueue(mesaB)
-  }
-  if(a[0] > b[0])
-  {
-    mesaA = a[0]
-    mesaB = b[0]
-    a.dequeue()
-    b.dequeue()
-    b.enqueue(mesaA)
-    b.enqueue(mesaB)
-  }
-  if(a[0] === b[0])
-  {
-    b.dequeue()
-    b.dequeue()
-  }
-  
-}
-  if(a.size > 0 && b.size < 0) return "Game tie!"
-  if(a.size === 0) return "B wins!"
-  if(b.size === 0) return "A wins!"
+  while(mazoUserA.array.length > 0 || mazoUserB.array.length < 0){
+    if(mazoUserA.array[0] < mazoUserB.array[0])
+    {
+      mesaA = mazoUserA.array[0]
+      mesaB = mazoUserB.array[0]
+      mazoUserA.dequeue()
+      mazoUserB.dequeue()
+      mazoUserB.enqueue(mesaB)
+      mazoUserB.enqueue(mesaA)
+    }
+    if(mazoUserA.array[0] > mazoUserB.array[0])
+    {
+      mesaA = mazoUserA.array[0]
+      mesaB = mazoUserB.array[0]
+      mazoUserA.dequeue()
+      mazoUserB.dequeue()
+      mazoUserA.enqueue(mesaA)
+      mazoUserA.enqueue(mesaB)
+    }
+    if(mazoUserA.array[0] === mazoUserB.array[0])
+    {
+      mazoUserA.dequeue()
+      mazoUserB.dequeue()
+    }
+    if(mazoUserA.array.length === 0 && mazoUserB.array.length === 0)return "Game tie!"
+    if(mazoUserB.array.length === 0) return "A wins!"
+    if(mazoUserA.array.length === 0) return "B wins!"
+  } 
 }
 
 // ---------------
@@ -259,7 +250,7 @@ while(a.size > 0 || b.size < 0){
 
 var generateBST = function(array){
   arbol = new BinarySearchTree(array[0])
-  for(var i = 1; i < array.length - 1; i++){
+  for(var i = 1; i < array.length; i++){
     arbol.insert(array[i])
   }
   return arbol
